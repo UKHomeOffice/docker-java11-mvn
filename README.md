@@ -9,22 +9,33 @@ This image is to be used to build your app using maven.
 
 Contents of .drone.yml:
 ```
-pipeline:
-  build:
+kind: pipeline
+type: kubernetes
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: build_and_test
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/java11-mvn:v3.5.4 
+    environment:
+      ARTIFACTORY_USERNAME:
+        from_secret: ARTIFACTORY_USERNAME
+      ARTIFACTORY_PASSWORD:
+        from_secret: ARTIFACTORY_PASSWORD
     commands:
-      - "/root/entrypoint.sh 'mvn clean install'"
-    secrets:
-      - artifactory_username
-      - artifactory_password
-    image: quay.io/ukhomeofficedigital/java11-mvn:v3.5.4
+      - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      - mvn test -B
     when:
       event:
         - push
-        - pull_request
+        - pull-request
 
 ```
 
-To deploy artifacts to Artifactory, please pass valid credentials via the ARTIFACTORY\_USERNAME and ARTIFACTORY\_PASSWORD environment variables.
+To authenticate with Artifactory, please pass valid credentials via the ARTIFACTORY\_USERNAME and ARTIFACTORY\_PASSWORD environment variables.
 
 You'll also need to include the following in your POM file:
 ```
