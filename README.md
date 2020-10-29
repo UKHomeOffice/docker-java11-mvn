@@ -26,8 +26,7 @@ steps:
       ARTIFACTORY_PASSWORD:
         from_secret: ARTIFACTORY_PASSWORD
     commands:
-      - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-      - mvn test -B
+      - mvn clean install
     when:
       event:
         - push
