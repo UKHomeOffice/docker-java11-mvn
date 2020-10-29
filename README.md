@@ -31,7 +31,7 @@ steps:
     when:
       event:
         - push
-        - pull-request
+        - pull_request
 
 ```
 
