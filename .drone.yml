@@ -1,38 +1,73 @@
-pipeline:
-  build_docker_image:
-    image: docker:18.06.1-ce
-    environment:
-      - DOCKER_HOST=tcp://172.17.0.1:2375
-    commands:
-      - docker build -t java11-mvn:$${DRONE_COMMIT_SHA} .
-    when:
-      event: [push, tag]
+---
+kind: pipeline
+name: default
+type: kubernetes
 
-  image_to_quay:
-    image: docker:18.06.1-ce
-    secrets:
-      - docker_password
-    environment:
-      - DOCKER_HOST=tcp://172.17.0.1:2375
-    commands:
-      - docker login -u="ukhomeofficedigital+drone" -p=$${DOCKER_PASSWORD} quay.io
-      - docker tag java11-mvn:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/java11-mvn:$${DRONE_COMMIT_SHA}
-      - docker tag java11-mvn:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/java11-mvn:latest
-      - docker push quay.io/ukhomeofficedigital/java11-mvn:$${DRONE_COMMIT_SHA}
-      - docker push quay.io/ukhomeofficedigital/java11-mvn:latest
-    when:
-      event: push
-      branch: master
+platform:
+  os: linux
+  arch: amd64
 
-  tagged_image_to_quay:
-    image: docker:18.06.1-ce
-    secrets:
-      - docker_password
-    environment:
-      - DOCKER_HOST=tcp://172.17.0.1:2375
-    commands:
-      - docker login -u="ukhomeofficedigital+drone" -p=$${DOCKER_PASSWORD} quay.io
-      - docker tag java11-mvn:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/java11-mvn:$${DRONE_TAG}
-      - docker push quay.io/ukhomeofficedigital/java11-mvn:$${DRONE_TAG}
-    when:
-      event: tag
+steps:
+- name: build_docker_image
+  pull: if-not-exists
+  image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
+  commands:
+  - n=0; while [ "$n" -lt 60 ] && [ ! docker stats --no-stream ]; do n=$(( n + 1 )); sleep 1; done
+  - docker build -t java11-mvn:$${DRONE_COMMIT_SHA} .
+  when:
+    event:
+    - push
+    - tag
+
+- name: scan-image
+  image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission
+  pull: always
+  settings:
+    image_name: java11-mvn:${DRONE_COMMIT_SHA}
+    # a critical CVE is being whitelisted to get a release out.
+    whitelist: CVE-2019-5827, CVE-2021-25215, CVE-2021-26291, CVE-2021-27219, CVE-2021-25217 
+  when:
+    event:
+    - push
+
+- name: image_to_quay
+  pull: if-not-exists
+  image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
+  commands:
+  - docker login -u="ukhomeofficedigital+drone" -p=$${DOCKER_PASSWORD} quay.io
+  - docker tag java11-mvn:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/java11-mvn:$${DRONE_COMMIT_SHA}
+  - docker tag java11-mvn:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/java11-mvn:latest
+  - docker push quay.io/ukhomeofficedigital/java11-mvn:$${DRONE_COMMIT_SHA}
+  - docker push quay.io/ukhomeofficedigital/java11-mvn:latest
+  environment:
+    DOCKER_PASSWORD:
+      from_secret: docker_password
+  when:
+    branch:
+    - master
+    event:
+    - push
+
+- name: tagged_image_to_quay
+  pull: if-not-exists
+  image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
+  commands:
+  - docker login -u="ukhomeofficedigital+drone" -p=$${DOCKER_PASSWORD} quay.io
+  - docker tag java11-mvn:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/java11-mvn:$${DRONE_TAG}
+  - docker push quay.io/ukhomeofficedigital/java11-mvn:$${DRONE_TAG}
+  environment:
+    DOCKER_PASSWORD:
+      from_secret: docker_password
+  when:
+    event:
+    - tag
+
+services:
+- name: docker
+  image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind:latest
+
+- name: anchore-submission-server
+  image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest
+  pull: always
+  commands:
+    - /run.sh server
