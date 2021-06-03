@@ -24,8 +24,7 @@ steps:
   pull: always
   settings:
     image_name: java11-mvn:${DRONE_COMMIT_SHA}
-    # a critical CVE is being whitelisted to get a release out.
-    whitelist: CVE-2019-5827, CVE-2021-25215, CVE-2021-26291, CVE-2021-27219, CVE-2021-25217 
+    whitelist: CVE-2019-5827, CVE-2021-37714
   when:
     event:
     - push

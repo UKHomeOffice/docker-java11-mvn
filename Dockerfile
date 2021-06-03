@@ -1,4 +1,4 @@
-FROM quay.io/ukhomeofficedigital/openjdk11:v11.0.11_9
+FROM quay.io/ukhomeofficedigital/openjdk11:v11.0.11_9-2
 
 RUN yum clean all && \
     yum update -y && \
@@ -7,7 +7,7 @@ RUN yum clean all && \
     rpm --rebuilddb
 
 ENV HOME=/root \
-    MVN_VERSION=3.8.1 \
+    MVN_VERSION=3.8.2 \
     ARTIFACTORY_USERNAME=user \
     ARTIFACTORY_PASSWORD=pass
 
