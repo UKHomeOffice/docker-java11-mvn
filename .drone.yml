@@ -36,9 +36,7 @@ steps:
   commands:
   - docker login -u="ukhomeofficedigital+drone" -p=$${DOCKER_PASSWORD} quay.io
   - docker tag java11-mvn:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/java11-mvn:$${DRONE_COMMIT_SHA}
-  - docker tag java11-mvn:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/java11-mvn:latest
   - docker push quay.io/ukhomeofficedigital/java11-mvn:$${DRONE_COMMIT_SHA}
-  - docker push quay.io/ukhomeofficedigital/java11-mvn:latest
   environment:
     DOCKER_PASSWORD:
       from_secret: docker_password
@@ -59,6 +57,22 @@ steps:
     DOCKER_PASSWORD:
       from_secret: docker_password
   when:
+    event:
+    - tag
+
+- name: latest_tag_to_quay
+  pull: if-not-exists
+  image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
+  commands:
+  - docker login -u="ukhomeofficedigital+drone" -p=$${DOCKER_PASSWORD} quay.io
+  - docker tag java11-mvn:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/java11-mvn:latest
+  - docker push quay.io/ukhomeofficedigital/java11-mvn:latest
+  environment:
+    DOCKER_PASSWORD:
+      from_secret: docker_password
+  when:
+    branch:
+    - master
     event:
     - tag
 
