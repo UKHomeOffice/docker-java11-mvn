@@ -12,7 +12,7 @@
     <mirror>
       <id>artifactory</id>
       <name>Artifactory</name>
-      <url>https://artifactory.digital.homeoffice.gov.uk/artifactory/repos</url>
+      <url>https://artifactory.testing.acp.homeoffice.gov.uk/artifactory/repos</url>
       <mirrorOf>*</mirrorOf>
     </mirror>
   </mirrors>
@@ -26,13 +26,13 @@
           </snapshots>
           <id>artifactory</id>
           <name>libs-release</name>
-          <url>https://artifactory.digital.homeoffice.gov.uk/artifactory/libs-release</url>
+          <url>https://artifactory.testing.acp.homeoffice.gov.uk/artifactory/libs-release</url>
         </repository>
         <repository>
           <snapshots />
           <id>artifactory</id>
           <name>libs-snapshot</name>
-          <url>https://artifactory.digital.homeoffice.gov.uk/artifactory/libs-snapshot</url>
+          <url>https://artifactory.testing.acp.homeoffice.gov.uk/artifactory/libs-snapshot</url>
         </repository>
       </repositories>
       <pluginRepositories>
@@ -42,13 +42,13 @@
           </snapshots>
           <id>artifactory</id>
           <name>plugins-release</name>
-          <url>https://artifactory.digital.homeoffice.gov.uk/artifactory/plugins-release</url>
+          <url>https://artifactory.testing.acp.homeoffice.gov.uk/artifactory/plugins-release</url>
         </pluginRepository>
         <pluginRepository>
           <snapshots />
           <id>artifactory</id>
           <name>plugins-snapshot</name>
-          <url>https://artifactory.digital.homeoffice.gov.uk/artifactory/plugins-snapshot</url>
+          <url>https://artifactory.testing.acp.homeoffice.gov.uk/artifactory/plugins-snapshot</url>
         </pluginRepository>
       </pluginRepositories>
       <id>artifactory</id>
