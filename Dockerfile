@@ -1,4 +1,4 @@
-FROM quay.io/ukhomeofficedigital/openjdk11:v11.0.11_9
+FROM quay.io/ukhomeofficedigital/openjdk11:v11.0.11_9-2
 
 RUN yum clean all && \
     yum update -y && \
