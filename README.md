@@ -1,4 +1,7 @@
 # docker-java11-mvn
+
+**Deprecation notice: This repo is no longer maintained by ACP. Please refer to our docs for guidance on deploying to Artifactory with Maven. You’re welcome to fork this repo according to your own needs.**
+
 base docker image with JDK 11 and Maven
 
 Docker image with JDK 11 and Maven. Not intended to use as a base for java projects, just for building.
